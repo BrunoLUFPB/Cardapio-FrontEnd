@@ -1,34 +1,76 @@
-import { useState } from 'react'
-import './App.css'
-import { Card } from './components/card/card';
-import { useFoodData } from './hooks/useFoodData';
-import { CreateModal } from './components/create-modal/create-modal';
+import { useEffect, useState } from "react";
+import { Card } from "./components/card/card";
+import { CreateModal } from "./components/create-modal/create-modal";
+import { FoodData } from "./interface/FoodData";
+import "./App.css";
 
 function App() {
-  const { data } = useFoodData();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [foods, setFoods] = useState<FoodData[]>([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingFood, setEditingFood] = useState<FoodData | null>(null);
 
-  const handleOpenModal = () => {
-    setIsModalOpen(prev => !prev)
-  }
+  const fetchFoods = () => {
+    fetch("http://localhost:8080/food")
+      .then(res => res.json())
+      .then(data => setFoods(data));
+  };
+
+  useEffect(() => {
+    fetchFoods();
+  }, []);
+
+  const openCreateModal = () => {
+    setEditingFood(null);
+    setModalOpen(true);
+  };
+
+  const handleEdit = (id: number) => {
+    const foodToEdit = foods.find(f => f.id === id);
+    if (foodToEdit) {
+      setEditingFood(foodToEdit);
+      setModalOpen(true);
+    }
+  };
+
+  const handleDelete = (id: number) => {
+    if (confirm("Tem certeza que deseja excluir este item?")) {
+      fetch(`http://localhost:8080/food/${id}`, {
+        method: "DELETE",
+      }).then(() => {
+        setFoods(prev => prev.filter(food => food.id !== id));
+      });
+    }
+  };
 
   return (
-    <div className="container">
-      <h1>Cardápio</h1>
-      <div className="card-grid">
-        {data?.map(foodData => 
+    <div className="main-container">
+      <div className="header">Cardápio</div>
+      <button className="btn-new" onClick={openCreateModal}>Novo Produto</button>
+
+      <div className="card-container">
+        {foods.map((food) => (
           <Card
-            price={foodData.price} 
-            title={foodData.title} 
-            image={foodData.image}
-            description={foodData.description}
+            key={food.id}
+            id={food.id}
+            title={food.title}
+            image={food.image}
+            description={food.description}
+            price={food.price}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
           />
-        )}
+        ))}
       </div>
-      {isModalOpen && <CreateModal closeModal={handleOpenModal}/>}
-      <button onClick={handleOpenModal}>novo</button>
+
+      {modalOpen && (
+        <CreateModal
+          closeModal={() => setModalOpen(false)}
+          editingFood={editingFood}
+          onUpdate={fetchFoods}
+        />
+      )}
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
