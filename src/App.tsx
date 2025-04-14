@@ -62,13 +62,21 @@ function App() {
         ))}
       </div>
 
-      {modalOpen && (
-        <CreateModal
-          closeModal={() => setModalOpen(false)}
-          editingFood={editingFood}
-          onUpdate={fetchFoods}
-        />
-      )}
+      {modalOpen && editingFood && (
+  <CreateModal
+    key={editingFood.id} // ← força re-render com os dados corretos
+    closeModal={() => setModalOpen(false)}
+    editingFood={editingFood}
+    onUpdate={fetchFoods}
+  />
+)}
+
+{modalOpen && !editingFood && (
+  <CreateModal
+    closeModal={() => setModalOpen(false)}
+    onUpdate={fetchFoods}
+  />
+)}
     </div>
   );
 }

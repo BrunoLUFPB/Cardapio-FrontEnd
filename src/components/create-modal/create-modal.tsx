@@ -18,7 +18,7 @@ export function CreateModal({ closeModal, editingFood, onUpdate }: ModalProps) {
 
   const { mutate, isSuccess, isPending } = useFoodDataMutate();
 
-  // Preenche campos se estiver em modo edição
+  // Preenche os campos ao abrir para edição
   useEffect(() => {
     if (editingFood) {
       setTitle(editingFood.title ?? "");
@@ -51,12 +51,6 @@ export function CreateModal({ closeModal, editingFood, onUpdate }: ModalProps) {
       mutate(foodData as any);
     }
   };
-
-  useEffect(() => {
-    if (!isSuccess || editingFood) return;
-    closeModal();
-    onUpdate?.();
-  }, [isSuccess]);
 
   return (
     <div className="modal-overlay">
