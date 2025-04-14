@@ -1,7 +1,10 @@
 export interface FoodData {
-    id: number,
-    title: string,
-    image: string,
-    price: number,
-    description: string
-}
+    id: number;
+    title: string;
+    image: string;
+    description: string;
+    price: number;
+    category: string;
+    available: boolean;
+  }
+  

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useFoodDataMutate } from '../../hooks/useFoodeDataMutate';
 import { FoodData } from '../../interface/FoodData';
-
 import "./modal.css";
 
 interface ModalProps {
@@ -16,15 +15,20 @@ export function CreateModal({ closeModal, editingFood, onUpdate }: ModalProps) {
   const [image, setImage] = useState("");
   const [description, setDescription] = useState("");
 
+  // 🆕 Novos campos:
+  const [category, setCategory] = useState("");
+  const [available, setAvailable] = useState(true);
+
   const { mutate, isSuccess, isPending } = useFoodDataMutate();
 
-  // Preenche os campos ao abrir para edição
   useEffect(() => {
     if (editingFood) {
       setTitle(editingFood.title ?? "");
       setPrice(editingFood.price ?? 0);
       setImage(editingFood.image ?? "");
       setDescription(editingFood.description ?? "");
+      setCategory(editingFood.category ?? "");
+      setAvailable(editingFood.available ?? true);
     }
   }, [editingFood]);
 
@@ -33,7 +37,9 @@ export function CreateModal({ closeModal, editingFood, onUpdate }: ModalProps) {
       title,
       price,
       image,
-      description
+      description,
+      category,
+      available
     };
 
     if (editingFood?.id) {
@@ -52,6 +58,12 @@ export function CreateModal({ closeModal, editingFood, onUpdate }: ModalProps) {
     }
   };
 
+  useEffect(() => {
+    if (!isSuccess || editingFood) return;
+    closeModal();
+    onUpdate?.();
+  }, [isSuccess]);
+
   return (
     <div className="modal-overlay">
       <div className="modal-body">
@@ -60,36 +72,23 @@ export function CreateModal({ closeModal, editingFood, onUpdate }: ModalProps) {
 
         <form className="input-container">
           <label htmlFor="title">Título</label>
-          <input
-            id="title"
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
+          <input id="title" type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
 
           <label htmlFor="price">Preço</label>
-          <input
-            id="price"
-            type="number"
-            value={price}
-            onChange={(e) => setPrice(Number(e.target.value))}
-          />
+          <input id="price" type="number" value={price} onChange={(e) => setPrice(Number(e.target.value))} />
 
           <label htmlFor="image">Imagem (URL)</label>
-          <input
-            id="image"
-            type="text"
-            value={image}
-            onChange={(e) => setImage(e.target.value)}
-          />
+          <input id="image" type="text" value={image} onChange={(e) => setImage(e.target.value)} />
 
           <label htmlFor="description">Descrição</label>
-          <input
-            id="description"
-            type="text"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
+          <input id="description" type="text" value={description} onChange={(e) => setDescription(e.target.value)} />
+
+          {/* 🆕 Novos campos */}
+          <label htmlFor="category">Categoria</label>
+          <input id="category" type="text" value={category} onChange={(e) => setCategory(e.target.value)} />
+
+          <label htmlFor="available">Disponível?</label>
+          <input id="available" type="checkbox" checked={available} onChange={(e) => setAvailable(e.target.checked)} />
         </form>
 
         <button onClick={submit} className="btn-secondary">
